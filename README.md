@@ -54,7 +54,7 @@ A smart productivity Chrome extension that combines the Pomodoro technique with 
 
 | Component | Technology |
 |----------|------------|
-| UI | HTML, CSS, JS |
+| UI | HTML,JS |
 | Popup Logic | JavaScript |
 | Storage | Chrome Storage API |
 | Blocking | Declarative Net Request API |
