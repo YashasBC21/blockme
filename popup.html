@@ -1,0 +1,165 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>blockme</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <style>
+    :root { color-scheme: dark; }
+    body {
+      background:#0b0f14;
+      color:#e6eef7;
+      font-family: ui-sans-serif, system-ui;
+      width:360px;
+      padding:16px;
+    }
+    h1 {
+      margin:0 0 8px;
+      font-size:16px;
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+
+    /* Timer */
+    .timer {
+      font-variant-numeric: tabular-nums;
+      font-size:42px;
+      text-align:center;
+      margin:12px 0;
+      font-weight:600;
+    }
+
+    /* Buttons */
+    .row { display:flex; gap:8px; align-items:center; margin:6px 0; }
+    button {
+      padding:8px 10px;
+      border:0;
+      border-radius:10px;
+      background:#3b82f6;
+      color:white;
+      cursor:pointer;
+      font-size:14px;
+    }
+    button.secondary { background:#1f2937; }
+
+    /* Inputs */
+    input[type=text], input[type=number] {
+      flex:1;
+      padding:8px;
+      border-radius:8px;
+      border:1px solid #203040;
+      background:#0f1620;
+      color:#e6eef7;
+    }
+
+    /* Blocklist */
+    ul {
+      list-style:none;
+      margin:0;
+      padding:0;
+      max-height:120px;
+      overflow:auto;
+      border:1px dashed #1f2d3d;
+      border-radius:8px;
+    }
+    li {
+      display:flex;
+      justify-content:space-between;
+      padding:6px 10px;
+      border-bottom:1px solid #111720;
+      font-size:14px;
+    }
+    li:last-child { border-bottom:0; }
+    .pill {
+      background:#111720;
+      padding:4px 8px;
+      border-radius:999px;
+      font-size:13px;
+    }
+
+    /* Badges */
+    .badges {
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+      margin-top:6px;
+    }
+    .badge {
+      background:#132033;
+      border:1px solid #1f3350;
+      padding:4px 8px;
+      border-radius:999px;
+      font-size:12px;
+    }
+
+    details { margin-top:10px; }
+    summary { cursor:pointer; padding:4px 0; font-size:14px; }
+    small { opacity:.7; }
+  </style>
+</head>
+
+<body>
+  <h1>blockme</h1>
+
+  <!-- Timer -->
+  <div class="timer" id="timer">01:00</div>
+
+  <!-- Controls -->
+  <div class="row">
+    <button id="start">Start</button>
+    <button id="pause" class="secondary">Pause</button>
+    <button id="reset" class="secondary">Reset</button>
+  </div>
+
+  <!-- Toggles -->
+  <div class="row">
+    <label><input type="checkbox" id="autoloop"> Auto-loop</label>
+  </div>
+
+  <!-- Timer settings -->
+  <details open>
+    <summary><b>Timer settings</b></summary>
+
+    <div class="row" style="margin-top:6px;">
+      <label style="width:60px;">Focus</label>
+      <input type="number" id="focus" min="0.1" max="180" value="1" style="width:80px">
+
+      <label style="width:60px;">Short</label>
+      <input type="number" id="short" min="0.1" max="60" value="0.33" style="width:80px">
+
+      <label style="width:60px;">Long</label>
+      <input type="number" id="long" min="0.1" max="120" value="0.66" style="width:80px">
+    </div>
+
+    <small>Times update immediately (in minutes, decimals allowed).</small>
+  </details>
+
+  <!-- Blocklist -->
+  <h3 style="font-size:14px;margin-top:12px;">Blocked websites</h3>
+
+  <div class="row">
+    <input type="text" id="domain" placeholder="e.g. youtube.com">
+    <button id="add">Add</button>
+  </div>
+
+  <ul id="list"></ul>
+
+  <!-- Badges -->
+  <h3 style="font-size:14px;margin-top:12px;">Badges</h3>
+  <div class="badges" id="badges"></div>
+
+  <!-- Status -->
+  <div class="row" style="justify-content:space-between; margin-top:12px;">
+    <small>Status: <span id="status">idle</span></small>
+    <small>
+      XP: <span id="xp">0</span> · 
+      Streak: <span id="streak">0</span>d · 
+      Sessions: <span id="sessions">0</span>
+    </small>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
