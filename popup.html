@@ -4,160 +4,166 @@
   <meta charset="utf-8" />
   <title>blockme</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-
   <style>
     :root { color-scheme: dark; }
     body {
-      background:#0b0f14;
-      color:#e6eef7;
-      font-family: ui-sans-serif, system-ui;
-      width:360px;
-      padding:16px;
+      margin: 0; padding: 12px 14px; width: 380px;
+      background: #020617; color: #e5e7eb;
+      font-family: system-ui, sans-serif;
+      font-size: 14px;
     }
-    h1 {
-      margin:0 0 8px;
-      font-size:16px;
-      display:flex;
-      align-items:center;
-      gap:8px;
-    }
+    h1 { margin: 0 0 4px; font-size: 16px; font-weight: 600; }
+    .sub { font-size: 11px; opacity: .7; margin-bottom: 8px; }
 
-    /* Timer */
+    .section-title { margin: 10px 0 4px; font-size: 13px; font-weight: 600; opacity: .9; }
+
     .timer {
       font-variant-numeric: tabular-nums;
-      font-size:42px;
-      text-align:center;
-      margin:12px 0;
-      font-weight:600;
+      font-size: 32px; text-align: center; margin: 8px 0;
     }
 
-    /* Buttons */
-    .row { display:flex; gap:8px; align-items:center; margin:6px 0; }
+    .row { display: flex; gap: 6px; align-items: center; margin: 4px 0; flex-wrap: wrap; }
+
     button {
-      padding:8px 10px;
-      border:0;
-      border-radius:10px;
-      background:#3b82f6;
-      color:white;
-      cursor:pointer;
-      font-size:14px;
+      padding: 6px 10px; border-radius: 8px; border: 0;
+      background: #3b82f6; color: #f9fafb;
+      cursor: pointer; font-size: 13px; white-space: nowrap;
     }
-    button.secondary { background:#1f2937; }
+    button.secondary { background: #111827; }
+    button.small { padding: 4px 8px; font-size: 12px; }
 
-    /* Inputs */
-    input[type=text], input[type=number] {
-      flex:1;
-      padding:8px;
-      border-radius:8px;
-      border:1px solid #203040;
-      background:#0f1620;
-      color:#e6eef7;
+    input[type="text"], input[type="number"] {
+      flex: 1; padding: 6px 8px; border-radius: 8px;
+      border: 1px solid #1f2937; background: #020617;
+      color: #e5e7eb; font-size: 13px;
     }
 
-    /* Blocklist */
+    input[type="number"] {
+      width: 60px;
+    }
+
     ul {
-      list-style:none;
-      margin:0;
-      padding:0;
-      max-height:120px;
-      overflow:auto;
-      border:1px dashed #1f2d3d;
-      border-radius:8px;
+      list-style: none; margin: 0; padding: 0;
+      max-height: 110px; overflow: auto;
+      border-radius: 8px; border: 1px dashed #1f2937;
     }
+
     li {
-      display:flex;
-      justify-content:space-between;
-      padding:6px 10px;
-      border-bottom:1px solid #111720;
-      font-size:14px;
+      display: flex; justify-content: space-between;
+      padding: 4px 8px; border-bottom: 1px solid #020617;
+      font-size: 13px;
     }
-    li:last-child { border-bottom:0; }
+
     .pill {
-      background:#111720;
-      padding:4px 8px;
-      border-radius:999px;
-      font-size:13px;
+      background: #020617; border-radius: 999px;
+      padding: 2px 8px; font-size: 12px;
     }
 
-    /* Badges */
-    .badges {
-      display:flex;
-      flex-wrap:wrap;
-      gap:6px;
-      margin-top:6px;
-    }
+    .badges { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
     .badge {
-      background:#132033;
-      border:1px solid #1f3350;
-      padding:4px 8px;
-      border-radius:999px;
-      font-size:12px;
+      background: #0f172a; border-radius: 999px;
+      padding: 2px 8px; border: 1px solid #1d283a;
+      font-size: 11px;
     }
 
-    details { margin-top:10px; }
-    summary { cursor:pointer; padding:4px 0; font-size:14px; }
-    small { opacity:.7; }
+    .group-box {
+      background:#020617;border:1px solid #1f2937;
+      padding:10px;border-radius:10px;margin-top:8px;
+    }
+
+    .members, .chat-box {
+      max-height: 90px; overflow: auto; padding: 6px;
+      border-radius: 8px; border: 1px dashed #1f2937;
+      font-size: 12px;
+    }
   </style>
 </head>
 
 <body>
   <h1>blockme</h1>
+  <div class="sub">Pomodoro blocker · XP + badges · solo or group study</div>
 
-  <!-- Timer -->
+  <!-- MODE -->
+  <div class="row">
+    <label><input type="radio" name="mode" value="alone" checked> Alone</label>
+    <label><input type="radio" name="mode" value="group"> Group</label>
+  </div>
+
+  <div class="sub" id="groupModeLabel">Mode: Alone</div>
+
+  <!-- TIMER -->
   <div class="timer" id="timer">01:00</div>
-
-  <!-- Controls -->
   <div class="row">
     <button id="start">Start</button>
     <button id="pause" class="secondary">Pause</button>
     <button id="reset" class="secondary">Reset</button>
   </div>
 
-  <!-- Toggles -->
+  <!-- TIMER SETTINGS -->
+  <div class="section-title">Timer settings</div>
+  <div class="row">
+    <label>Focus</label>
+    <input type="number" id="focus" min="1" max="180" step="1">
+
+    <label>Short</label>
+    <input type="number" id="short" min="1" max="180" step="1">
+
+    <label>Long</label>
+    <input type="number" id="long" min="1" max="180" step="1">
+  </div>
+
   <div class="row">
     <label><input type="checkbox" id="autoloop"> Auto-loop</label>
   </div>
 
-  <!-- Timer settings -->
-  <details open>
-    <summary><b>Timer settings</b></summary>
-
-    <div class="row" style="margin-top:6px;">
-      <label style="width:60px;">Focus</label>
-      <input type="number" id="focus" min="0.1" max="180" value="1" style="width:80px">
-
-      <label style="width:60px;">Short</label>
-      <input type="number" id="short" min="0.1" max="60" value="0.33" style="width:80px">
-
-      <label style="width:60px;">Long</label>
-      <input type="number" id="long" min="0.1" max="120" value="0.66" style="width:80px">
-    </div>
-
-    <small>Times update immediately (in minutes, decimals allowed).</small>
-  </details>
-
-  <!-- Blocklist -->
-  <h3 style="font-size:14px;margin-top:12px;">Blocked websites</h3>
-
+  <!-- BLOCKLIST -->
+  <div class="section-title">Blocked websites</div>
   <div class="row">
     <input type="text" id="domain" placeholder="e.g. youtube.com">
     <button id="add">Add</button>
   </div>
-
   <ul id="list"></ul>
 
-  <!-- Badges -->
-  <h3 style="font-size:14px;margin-top:12px;">Badges</h3>
+  <!-- BADGES -->
+  <div class="section-title">Badges</div>
   <div class="badges" id="badges"></div>
 
-  <!-- Status -->
-  <div class="row" style="justify-content:space-between; margin-top:12px;">
-    <small>Status: <span id="status">idle</span></small>
-    <small>
-      XP: <span id="xp">0</span> · 
-      Streak: <span id="streak">0</span>d · 
-      Sessions: <span id="sessions">0</span>
-    </small>
+  <!-- META -->
+  <div class="meta" style="margin-top:8px;font-size:12px;opacity:0.85;">
+    Status: <span id="status">idle</span><br>
+    XP: <span id="xp">0</span> ·
+    Sessions: <span id="sessions">0</span> ·
+    Streak: <span id="streak">0</span>d
+  </div>
+
+  <!-- GROUP STUDY BOX -->
+  <div id="groupBox" class="group-box">
+    <input type="text" id="displayName" placeholder="Your name">
+
+    <div class="row">
+      <button id="createRoom" class="small">Create</button>
+      <input type="text" id="joinCode" placeholder="12345" style="width:80px;">
+      <button id="joinRoom" class="small secondary">Join</button>
+    </div>
+
+    <div class="row">
+      <span>Room: <b id="roomCodeLabel">—</b></span>
+      <span>Role: <b id="roleLabel">—</b></span>
+    </div>
+
+    <div class="row">
+      <button id="endRoom" class="small secondary">End room</button>
+      <button id="leaveRoom" class="small secondary">Leave</button>
+    </div>
+
+    <div class="members" id="members"></div>
+
+    <div class="chat-box" id="chatBox"></div>
+
+    <div class="row">
+      <input type="text" id="chatInput">
+      <button id="sendChat" class="small secondary">Send</button>
+    </div>
   </div>
 
   <script src="popup.js"></script>
