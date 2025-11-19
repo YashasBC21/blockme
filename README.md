@@ -1,4 +1,4 @@
-# 🚀 blockme — Productivity + Group Study Chrome Extension
+# blockme — Productivity + Group Study Chrome Extension
 
 **blockme** is a lightweight productivity Chrome extension that combines:
 
@@ -139,18 +139,18 @@ blockme/
 │   ├── puzzles.json
 │   └── quotes.json
 │
-└── icons/
-```
-
+├── icons/
+│   ├── 16.png
+│   ├── 48.png
+│   └── 128.png
+│
+└── display.jpg
 ---
 
 ##  Screenshots ()
 
 ```
 ![Preview](display.jpg)
-
-
-
 ---
 
 
