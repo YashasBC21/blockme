@@ -1,4 +1,4 @@
-// popup.js — solo + group mode with Firebase rooms (old logic + fixes)
+// popup.js — solo + group mode with Firebase
 
 const DB_URL = "https://blockme-5c871-default-rtdb.firebaseio.com";
 
