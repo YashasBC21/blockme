@@ -147,9 +147,8 @@ blockme/
 └── display.jpg
 ---
 
-##  Screenshots ()
-
 ```
+##  Screenshot
 ![Preview](display.jpg)
 ---
 
