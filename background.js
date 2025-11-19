@@ -1,9 +1,9 @@
 // blockme background — demo-mode version (short cycles) with full features
 
 const DEFAULTS = {
-  focusMinutes: 1,      // 1 minute (for demo)
-  shortBreak: 0.33,     // ~20s
-  longBreak: 0.66,      // ~40s (used for long break every 4th session)
+  focusMinutes: 1,      // 1 minute
+  shortBreak: 0.33,     // ~33s
+  longBreak: 0.66,      // ~66s
   autoLoop: false,
 
   blocked: [],
@@ -46,7 +46,7 @@ async function syncRules() {
     .filter(r => r.id >= RULE_BASE && r.id < RULE_BASE + 5000)
     .map(r => r.id);
 
-  // Remove old rules
+  // Clear our rules
   await chrome.declarativeNetRequest.updateDynamicRules({
     removeRuleIds: ours,
     addRules: []
@@ -62,7 +62,7 @@ async function syncRules() {
 function notify(title, message) {
   chrome.notifications.create({
     type: 'basic',
-    iconUrl: 'logo.png', // if you don't have logo.png, Chrome just shows default icon
+    iconUrl: 'logo.png',
     title,
     message
   });
@@ -81,30 +81,30 @@ async function awardBadge(name) {
 
 async function checkBadges() {
   const s = await getState();
-  if ((s.sessions || 0) >= 1) await awardBadge('First Focus');
-  if ((s.sessions || 0) >= 5) await awardBadge('5 Sessions');
+  if ((s.sessions || 0) >= 1)  await awardBadge('First Focus');
+  if ((s.sessions || 0) >= 5)  await awardBadge('5 Sessions');
   if ((s.streakDays || 0) >= 3) await awardBadge('3-Day Streak');
-  if ((s.xp || 0) >= 300) await awardBadge('300 XP');
+  if ((s.xp || 0) >= 300)      await awardBadge('300 XP');
 }
 
 // ---------- End focus ----------
 async function endFocus() {
   const s = await getState();
-  const gained = s.focusMinutes;            // 1 XP per minute of focus
-  const sessions = (s.sessions || 0) + 1;   // +1 session
+  const gained = s.focusMinutes;
+  const sessions = (s.sessions || 0) + 1;
 
-  const today = new Date(); 
-  today.setHours(0,0,0,0);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
   const last = s.lastFocusDate ? new Date(s.lastFocusDate) : null;
-
   let streak = s.streakDays || 0;
+
   if (!last) {
-    streak = 1; // first ever focus day
+    streak = 1;
   } else {
-    last.setHours(0,0,0,0);
+    last.setHours(0, 0, 0, 0);
     const diff = today.getTime() - last.getTime();
-    if (diff === 86400000)      streak += 1; // yesterday
-    else if (diff > 86400000)   streak = 1;  // gap → restart streak
+    if (diff === 86400000) streak += 1;
+    else if (diff > 86400000) streak = 1;
   }
 
   await setState({
@@ -117,7 +117,6 @@ async function endFocus() {
   await checkBadges();
 }
 
-// ---------- ALARM TICK ----------
 chrome.alarms.onAlarm.addListener(async (alarm) => {
   if (alarm.name !== 'tick') return;
 
@@ -125,50 +124,37 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
 
   if (s.status === 'focus' || s.status === 'break') {
     if (Date.now() >= s.endsAt) {
-
-      // -------- FOCUS FINISHED --------
       if (s.status === 'focus') {
         await endFocus();
-
-        // Classic Pomodoro: use long break roughly every 4 sessions
-        const longBreakNow = ((s.sessions || 0) % 4 === 0);
-
         if (s.autoLoop) {
-          const breakMinutes = longBreakNow ? s.longBreak : s.shortBreak;
           await setState({
             status: 'break',
-            endsAt: Date.now() + breakMinutes * 60 * 1000
+            endsAt: Date.now() + s.shortBreak * 60 * 1000
           });
-          notify('Focus finished', longBreakNow ? 'Long break started!' : 'Short break started.');
+          notify('Focus finished', 'Short break started.');
         } else {
           await setState({ status: 'idle', endsAt: 0 });
           notify('Focus finished', 'Great job!');
         }
-
-        await syncRules(); // unblocks sites when leaving focus
-      }
-
-      // -------- BREAK FINISHED --------
-      else if (s.status === 'break') {
+        await syncRules();
+      } else if (s.status === 'break') {
         if (s.autoLoop) {
           await setState({
             status: 'focus',
             endsAt: Date.now() + s.focusMinutes * 60 * 1000
           });
           notify('Break over', 'Back to focus!');
-          await syncRules(); // re-apply rules in focus
+          await syncRules();
         } else {
           await setState({ status: 'idle', endsAt: 0 });
           await syncRules();
         }
       }
     }
-
     chrome.alarms.create('tick', { when: Date.now() + 1000 });
   }
 });
 
-// ---------- MESSAGE HANDLERS ----------
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   (async () => {
     const s = await getState();
@@ -198,10 +184,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 
     if (msg.type === 'resume') {
       if (s.status === 'paused') {
-        await setState({
-          status: 'focus',
-          endsAt: Date.now() + s.endsAt
-        });
+        await setState({ status: 'focus', endsAt: Date.now() + s.endsAt });
         await syncRules();
         chrome.alarms.create('tick', { when: Date.now() + 1000 });
       }
@@ -218,15 +201,8 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     }
 
     if (msg.type === 'addBlocked') {
-      let domain = (msg.domain || '').trim();
+      const domain = (msg.domain || '').trim();
       if (!domain) { sendResponse(await getState()); return; }
-
-      // just in case, normalize a bit here too
-      domain = domain
-        .replace(/^https?:\/\//, '')
-        .replace(/^www\./, '')
-        .replace(/\/.*$/, '');
-
       const set = new Set([...(s.blocked || []), domain]);
       await setState({ blocked: Array.from(set) });
       await syncRules();
@@ -238,10 +214,17 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       await syncRules();
     }
 
+    // NEW: for guests to sync host's blocklist
+    if (msg.type === 'setBlockedList') {
+      const list = Array.isArray(msg.blocked) ? msg.blocked : [];
+      await setState({ blocked: list });
+      await syncRules();
+    }
+
     sendResponse(await getState());
   })();
+
   return true;
 });
 
-// ---------- INIT ----------
 (async () => { await syncRules(); })();
